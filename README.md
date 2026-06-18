@@ -25,7 +25,8 @@ Một ứng dụng web nhỏ gọn được xây dựng bằng **Python Flask** 
 * `docs/`: Thư mục lưu trữ tài liệu phân tích chi tiết:
   * [implementation_plan.md](docs/implementation_plan.md): Kế hoạch và kiến trúc triển khai dự án.
   * [project_deep_dive.md](docs/project_deep_dive.md): Phân tích chi tiết vai trò Server-side/Client-side và Luồng xử lý dữ liệu.
-  * [codelab_step6_summary.md](docs/codelab_step6_summary.md): Tài liệu tóm tắt nội dung Codelab hướng dẫn bài thực hành số 6.
+  * [codelab_step6_summary.md](docs/codelab_step6_summary.md): Tài liệu tóm tắt nội dung Codelab hướng dẫn bài thực hành số 6 (Phát triển ứng dụng).
+  * [getting_started_with_skills_step4.md](docs/getting_started_with_skills_step4.md): Tài liệu tóm tắt nội dung Codelab hướng dẫn lập trình kỹ năng (Skills) trên Antigravity.
 
 ---
 
