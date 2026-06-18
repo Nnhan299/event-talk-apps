@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BigQuery Release Notes Tracker</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation & Filters -->
+        <header class="main-header">
+            <div class="logo-area">
+                <div class="logo-glow"></div>
+                <i class="fa-solid fa-database logo-icon"></i>
+                <div>
+                    <h1>BigQuery Updates</h1>
+                    <p class="subtitle">Release Notes & Twitter Publisher</p>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <div class="status-indicator">
+                    <span class="status-dot green"></span>
+                    <span id="last-updated-time">Chưa cập nhật</span>
+                </div>
+                <button id="btn-refresh" class="btn btn-primary btn-refresh" title="Làm mới bảng tin">
+                    <i class="fa-solid fa-arrows-rotate refresh-icon" id="refresh-icon"></i>
+                    <span>Làm mới</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="app-content">
+            <!-- Left Panel: Release Notes Feed -->
+            <section class="feed-section">
+                <!-- Filters Bar -->
+                <div class="filters-bar">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="search-input" placeholder="Tìm kiếm cập nhật...">
+                    </div>
+                    
+                    <div class="filter-chips" id="filter-chips">
+                        <button class="chip active" data-type="all">Tất cả</button>
+                        <button class="chip" data-type="Feature">Feature</button>
+                        <button class="chip" data-type="Announcement">Announcement</button>
+                        <button class="chip" data-type="Issue">Issue</button>
+                        <button class="chip" data-type="Deprecation">Deprecation</button>
+                    </div>
+                </div>
+
+                <!-- Feed Container -->
+                <div class="feed-container">
+                    <!-- Loading State -->
+                    <div id="feed-loading" class="loading-state">
+                        <div class="spinner-container">
+                            <div class="spinner-core"></div>
+                        </div>
+                        <p>Đang tải dữ liệu từ Google Cloud Feed...</p>
+                    </div>
+
+                    <!-- Error State -->
+                    <div id="feed-error" class="error-state hidden">
+                        <i class="fa-solid fa-triangle-exclamation error-icon"></i>
+                        <h3>Lỗi Tải Dữ Liệu</h3>
+                        <p id="error-message">Không thể kết nối tới máy chủ hoặc dữ liệu XML bị lỗi.</p>
+                        <button id="btn-retry" class="btn btn-outline">Thử lại</button>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="feed-empty" class="empty-state hidden">
+                        <i class="fa-solid fa-inbox empty-icon"></i>
+                        <h3>Không tìm thấy cập nhật</h3>
+                        <p>Hãy thử thay đổi từ khóa tìm kiếm hoặc bộ lọc.</p>
+                    </div>
+
+                    <!-- Cards Grid -->
+                    <div id="updates-grid" class="updates-grid"></div>
+                </div>
+            </section>
+
+            <!-- Right Panel: Twitter Sharing Composer -->
+            <section class="composer-section">
+                <div class="composer-card">
+                    <div class="composer-header">
+                        <i class="fa-brands fa-x-twitter twitter-logo"></i>
+                        <h2>Đăng lên Twitter (X)</h2>
+                    </div>
+                    
+                    <div id="composer-empty-state" class="composer-empty">
+                        <div class="tweet-illustration">
+                            <i class="fa-solid fa-paper-plane animate-float"></i>
+                        </div>
+                        <h3>Chưa chọn cập nhật</h3>
+                        <p>Chọn một bản cập nhật từ bảng tin bên trái để soạn và đăng thảo luận lên Twitter.</p>
+                    </div>
+
+                    <div id="composer-active-state" class="composer-active hidden">
+                        <div class="selected-meta">
+                            <span class="meta-label">Bản cập nhật được chọn:</span>
+                            <div class="selected-summary">
+                                <span id="selected-card-date" class="meta-date">June 17, 2026</span>
+                                <span id="selected-card-type" class="badge">Feature</span>
+                            </div>
+                        </div>
+
+                        <div class="textarea-wrapper">
+                            <label for="tweet-textarea" class="sr-only">Nội dung Tweet</label>
+                            <textarea id="tweet-textarea" placeholder="Nhập nội dung chia sẻ..."></textarea>
+                            <div class="textarea-glow"></div>
+                        </div>
+
+                        <div class="composer-footer">
+                            <div class="char-counter">
+                                <svg class="progress-ring" width="24" height="24">
+                                    <circle class="progress-ring__circle-bg" stroke="#1d2a45" stroke-width="3" fill="transparent" r="10" cx="12" cy="12"/>
+                                    <circle class="progress-ring__circle" id="progress-circle" stroke="#3b82f6" stroke-width="3" fill="transparent" r="10" cx="12" cy="12"/>
+                                </svg>
+                                <span id="char-count-text">280</span>
+                            </div>
+                            
+                            <button id="btn-tweet" class="btn btn-tweet">
+                                <i class="fa-brands fa-x-twitter"></i>
+                                <span>Đăng Tweet</span>
+                            </button>
+                        </div>
+
+                        <div class="tweet-preview-container">
+                            <span class="preview-title">Xem trước hiển thị:</span>
+                            <div class="tweet-preview">
+                                <div class="avatar-mock">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                                <div class="tweet-body">
+                                    <div class="user-info">
+                                        <span class="user-name">Bạn</span>
+                                        <span class="user-handle">@username</span>
+                                        <span class="dot">·</span>
+                                        <span class="time-now">Bây giờ</span>
+                                    </div>
+                                    <p id="tweet-preview-text" class="preview-text"></p>
+                                    <div class="tweet-link-preview">
+                                        <div class="link-img">
+                                            <i class="fa-solid fa-link"></i>
+                                        </div>
+                                        <div class="link-meta">
+                                            <span class="link-domain">cloud.google.com</span>
+                                            <span class="link-title">Cập nhật BigQuery Release Notes</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Main App Script -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
